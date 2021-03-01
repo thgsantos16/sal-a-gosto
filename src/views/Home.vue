@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <hero />
+    <hero :data="hero" />
 
     <div class="stripes">
       <stripe v-for="stripe in stripes" :key="stripe.id" :stripe="stripe" />
@@ -9,6 +9,7 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex';
 
 import Hero from '../components/Hero.vue';
 import Stripe from '../components/Stripe.vue';
@@ -21,6 +22,15 @@ export default {
   },
   data() {
     return {
+      hero: {
+        title: 'Nhoque',
+        small: 'cozinha italiana',
+        summary: `Você confere aqui: História do nhoque, cultura, receitas e muito mais!
+                 Uma aula completa das centenas que estão disponíveis na maior plataforma de gastronomia,
+                 totalmente gratuita para você assistir!!!`,
+        hasButton: true,
+        buttonText: 'Assistir',
+      },
       stripes: [
         {
           id: 1,
@@ -41,6 +51,12 @@ export default {
         },
       ],
     };
+  },
+  methods: {
+    ...mapActions(['setSiteTitle']),
+  },
+  beforeMount() {
+    this.setSiteTitle('Sal a Gosto');
   },
 };
 </script>

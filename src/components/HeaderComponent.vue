@@ -2,10 +2,12 @@
   <header class="container-fluid">
     <div class="row">
       <div class="logo col-auto">
-        <img alt="Sal a Gosto" src="../assets/logo.png">
+        <router-link :to="{ name: 'home'}">
+          <img alt="Sal a Gosto" src="../assets/logo.png">
+        </router-link>
       </div>
 
-      <nav id="nav" class="col-6">
+      <nav id="nav" class="col">
         <router-link :to="{ name: 'escola'}">
           . a escola
         </router-link>
@@ -20,13 +22,13 @@
         </router-link>
       </nav>
 
-      <div class="col profile row">
+      <div class="col-auto profile row">
         <div class="search row col">
           <div class="col text">
             Buscar
           </div>
-          <div class="col-6 search-input" :class="{ closed: !showSearch}">
-            <input class="form-control search-field">
+          <div class="col-auto search-input" :class="{ closed: !showSearch}">
+            <input placeholder="Digite sua busca" class="search-field">
           </div>
           <div class="col-auto icon" @click="showSearch = true">
             <img class="search-icon" src="../assets/search.png">
@@ -38,7 +40,8 @@
         </div>
 
         <div class="col-auto profile-image">
-          <div class="profile-pic"></div>
+          <div v-if="$store.getters.isLoggedIn" class="profile-pic"></div>
+          <router-link :to="{ name: 'login' }" class="button" v-else>Login</router-link>
         </div>
       </div>
     </div>
@@ -106,6 +109,8 @@ header {
     .search-input {
       transition: all 0.43s;
       overflow: hidden;
+      margin-top: -19px;
+      width: 250px;
 
       &.closed {
         width: 0;
@@ -123,6 +128,11 @@ header {
       height: 57px;
       background-color: #FFF;
       border-radius: 50%;
+    }
+
+    .button {
+      margin-top: 4px;
+      display: inline-block;
     }
   }
 

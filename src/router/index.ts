@@ -1,24 +1,56 @@
 import Vue from 'vue';
 import VueRouter, { RouteConfig } from 'vue-router';
+
+// Pages
 import Home from '../views/Home.vue';
+import Login from '../views/Login.vue';
+import Escola from '../views/Escola.vue';
+import Forgot from '../views/Forgot.vue';
+import Register from '../views/Register.vue';
+import Professores from '../views/Professores.vue';
 
 Vue.use(VueRouter);
 
 const routes: Array<RouteConfig> = [
   {
     path: '/',
-    name: 'Home',
+    name: 'home',
     component: Home,
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: Login,
+  },
+  {
+    path: '/forgot',
+    name: 'forgot',
+    component: Forgot,
+  },
+  {
+    path: '/terms',
+    name: 'terms',
+    component: Register,
+  },
+  {
+    path: '/politics',
+    name: 'politics',
+    component: Register,
+  },
+  {
+    path: '/register',
+    name: 'register',
+    component: Register,
   },
   {
     path: '/escola',
     name: 'escola',
-    component: Home,
+    component: Escola,
   },
   {
     path: '/professores',
     name: 'professores',
-    component: Home,
+    component: Professores,
   },
   {
     path: '/destaque',

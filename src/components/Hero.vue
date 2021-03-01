@@ -2,16 +2,13 @@
   <div class="hero">
     <div class="image"></div>
     <div class="overlay">
-      <div class="info col-4">
-        <small>Cozinha Italiana</small>
-        <h2 class="title">Nhoque</h2>
-        <div class="summary">
-          Você confere aqui: História do nhoque, cultura, receitas e muito mais!<br>
-          Uma aula completa das centenas que estão disponíveis na maior plataforma de gastronomia,
-          totalmente gratuita para você assistir!!!
+      <div class="info" :class="[textSize, fontSize]">
+        <small v-if="data.small">{{ data.small }}</small>
+        <h2 class="title">{{ data.title }}</h2>
+        <div class="summary">{{ data.summary }}
         </div>
-        <div class="button">
-          <button class="btn">Assistir</button>
+        <div v-if="data.hasButton" class="buttons">
+          <button class="btn">{{ data.buttonText }}</button>
         </div>
       </div>
     </div>
@@ -19,10 +16,29 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, Prop } from 'vue-property-decorator';
+
+interface HeroObject {
+  title: string;
+  small?: string;
+  width?: string;
+  font?: string;
+  summary: string;
+  hasButton?: boolean;
+  buttonText?: string;
+}
 
 @Component
 export default class Hero extends Vue {
+  @Prop() private data!: HeroObject;
+
+  get textSize() {
+    return this.data.width === 'wide' ? 'col-lg-8' : 'col-lg-4';
+  }
+
+  get fontSize() {
+    return this.data.font === 'medium' ? 'medium-font' : '';
+  }
 }
 </script>
 
@@ -68,7 +84,17 @@ export default class Hero extends Vue {
       font-size: 80px;
     }
 
-    .button {
+    .summary {
+      max-width: 34vw;
+    }
+
+    &.medium-font {
+      h2 {
+        font-size: 60px;
+      }
+    }
+
+    .buttons {
       margin-top: 16px;
 
       .btn {

@@ -2,11 +2,10 @@
   <div id="app">
 
     <vue-headful
-        title="Sal a Gosto"
-    />
+      :title="getSiteTitle"/>
 
     <transition appear name="slow-fade">
-      <header-component></header-component>
+      <header-component />
     </transition>
 
     <transition name="slow-fade" mode="out-in" appear>
@@ -14,7 +13,11 @@
     </transition>
 
     <transition appear name="slow-fade">
-      <footer-component></footer-component>
+      <footer-component />
+    </transition>
+
+    <transition appear name="slow-fade">
+      <video-component v-if="isShowingVideo" />
     </transition>
   </div>
 </template>
@@ -22,13 +25,19 @@
 <script lang="ts">
 
 import { Vue, Component } from 'vue-property-decorator';
+import { mapGetters } from 'vuex';
+import VideoComponent from './components/VideoComponent.vue';
 import HeaderComponent from './components/HeaderComponent.vue';
 import FooterComponent from './components/FooterComponent.vue';
 
 @Component({
   components: {
+    VideoComponent,
     HeaderComponent,
     FooterComponent,
+  },
+  computed: {
+    ...mapGetters(['isShowingVideo', 'getSiteTitle']),
   },
 })
 export default class App extends Vue {
@@ -76,6 +85,74 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #EEE;
+
+  .button {
+    transition: all 0.43s;
+    background-color: #e00109;
+    border: none;
+    border-radius: 27px;
+    color: #FFF;
+    padding: 12px 52px;
+
+    &:hover {
+      background-color: #bd0809;
+      color: #FFF;
+    }
+  }
+
+  input {
+    transition: all 0.43s;
+    display: block;
+    width: 100%;
+    border: 2px solid #dededf;
+    color: #FFF;
+    background-color: transparent;
+    border-radius: 27px;
+    padding: 12px 16px;
+    margin: 10px 0;
+
+    &:focus {
+      border-color: #e22229;
+    }
+  }
+
+  .custom-checkbox {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    border: 2px  solid #dededf;
+    border-radius: 50%;
+    vertical-align: bottom;
+    margin-bottom: -2px;
+    margin-right: 7px;
+    cursor: pointer;
+
+    &.selected {
+      &:before {
+        content: "";
+        display: inline-block;
+        width: 17px;
+        height: 17px;
+        background: #e00109;
+        border-radius: 50%;
+        margin: 5px 0 0 5px;
+      }
+    }
+  }
+
+  :focus {
+    outline: none;
+  }
+
+  a {
+    transition: all 0.43s;
+    color: #FFF;
+    text-decoration: none;
+
+    &:hover {
+      color: #e22229;
+    }
+  }
 }
 
 #nav {
@@ -92,14 +169,14 @@ body {
 }
 
 .fade-enter-active, .fade-leave-active {
-  transition: opacity .5s;
+  transition: opacity .43s;
 }
 .fade-enter, .fade-leave-to {
   opacity: 0;
 }
 
 .slow-fade-enter-active, .slow-fade-leave-active {
-  transition: opacity 1s;
+  transition: opacity .7s;
 }
 .slow-fade-enter, .slow-fade-leave-to {
   opacity: 0;

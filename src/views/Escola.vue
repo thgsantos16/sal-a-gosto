@@ -53,7 +53,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 
 import Hero from '../components/Hero.vue';
 
@@ -65,24 +65,33 @@ export default {
   data() {
     return {
       hero: {
-        title: `PARA INICIANTES, INICIADOS E APAIXONADOS
-                MAIS QUE CULINÁRIA, HISTÓRIA &
-                TÉCNICA & CULTURA.`,
+        title: '',
         width: 'wide',
         font: 'medium',
-        summary: `Faça parte da maior plataforma de gastronomia para quem cozinha em casa.
-                  uma escola especializada no público que deseja cozinhar como um chef!
-                  com metodologia única e experiência de 10 anos, já são mais de 25.000
-                  alunos que mudaram a sua vida com as nossas aulas. evolua seus conhecimentos
-                  de cozinha, aprenda novos pratos e não fique mais refém de receitas prontas.`,
+        summary: '',
+        ready: false,
       },
     };
+  },
+  computed: {
+    ...mapGetters(['getApiUrl']),
   },
   methods: {
     ...mapActions(['setSiteTitle']),
   },
   beforeMount() {
     this.setSiteTitle('A Escola | Sal a Gosto');
+
+    const url = `${this.getApiUrl}&mod=conteudos&where=nome_arquivo=%22sobre-capa%22`;
+    fetch(url)
+      .then((res) => res.json())
+      .then((res) => {
+        const text = res.result[0].conteudos[0];
+        this.hero.title = text.titulo;
+        this.hero.summary = text.texto;
+        this.hero.image = text.banner_topo;
+        this.hero.ready = true;
+      });
   },
 };
 </script>

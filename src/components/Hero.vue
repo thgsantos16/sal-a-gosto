@@ -1,16 +1,22 @@
 <template>
   <div class="hero">
-    <div class="image"></div>
+    <transition appear name="fade">
+      <div class="image"
+           v-if="data.image"
+           :style="{ backgroundImage: `url(${data.image})` }"></div>
+    </transition>
     <div class="overlay">
-      <div class="info" :class="[textSize, fontSize]">
-        <small v-if="data.small">{{ data.small }}</small>
-        <h2 class="title">{{ data.title }}</h2>
-        <div class="summary">{{ data.summary }}
+      <transition appear name="fade">
+        <div class="info" v-if="data.ready" :class="[textSize, fontSize]">
+          <small v-if="data.small">{{ data.small }}</small>
+          <h2 class="title">{{ data.title }}</h2>
+          <div class="summary">{{ data.summary }}
+          </div>
+          <div v-if="data.hasButton" class="buttons">
+            <button class="btn">{{ data.buttonText }}</button>
+          </div>
         </div>
-        <div v-if="data.hasButton" class="buttons">
-          <button class="btn">{{ data.buttonText }}</button>
-        </div>
-      </div>
+      </transition>
     </div>
   </div>
 </template>
@@ -20,10 +26,12 @@ import { Component, Vue, Prop } from 'vue-property-decorator';
 
 interface HeroObject {
   title: string;
+  image?: string;
   small?: string;
   width?: string;
   font?: string;
   summary: string;
+  ready?: boolean;
   hasButton?: boolean;
   buttonText?: string;
 }
@@ -49,7 +57,6 @@ export default class Hero extends Vue {
 
   .image {
     background: center/cover no-repeat;
-    background-image: url(../assets/video.jpg);
     height: 110vh;
     width: 100%;
     position: absolute;

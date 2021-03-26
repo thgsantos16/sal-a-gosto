@@ -3,9 +3,15 @@
     <div class="login-inner">
       <h1>Login</h1>
 
-      <form>
-        <input placeholder="Email">
-        <input placeholder="Senha" type="password">
+      <form @submit.prevent="submitLogin">
+        <input v-model="$v.email.$model" name="email" placeholder="Email">
+        <div class="error-container" v-if="$v.email.$dirty">
+          <div class="error" v-if="!$v.email.required">Email é obrigatório!</div>
+        </div>
+        <input v-model="$v.password.$model" name="password" placeholder="Senha" type="password">
+        <div class="error-container" v-if="$v.password.$dirty">
+          <div class="error" v-if="!$v.password.required">Senha é obrigatório!</div>
+        </div>
 
         <div class="buttons row">
           <div class="col-lg forgot">
@@ -28,7 +34,8 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
+import { required, email } from 'vuelidate/lib/validators';
 
 export default {
   name: 'Login',
@@ -36,15 +43,40 @@ export default {
   },
   data() {
     return {
-      username: '',
+      email: '',
       password: '',
     };
   },
+  computed: {
+    ...mapGetters(['getApiUrl']),
+  },
   methods: {
-    ...mapActions(['setSiteTitle']),
+    ...mapActions(['setSiteTitle', 'setUser']),
+    submitLogin() {
+      this.$v.$touch();
+      if (!this.$v.$invalid) this.sendForm();
+    },
+    sendForm() {
+      let url = `${this.getApiUrl}&meth=login`;
+      url += `&senha=${this.CryptoJS.MD5(this.password)}`;
+      url += `&login=${this.email}`;
+
+      fetch(url)
+        .then((res) => res.json())
+        .then((res) => {
+          if (res.result[0].login.length > 0) {
+            this.setUser(res.result[0].login[0]);
+            this.$router.push({ name: 'home' });
+          }
+        });
+    },
   },
   beforeMount() {
     this.setSiteTitle('Login | Sal a Gosto');
+  },
+  validations: {
+    password: { required },
+    email: { required, email },
   },
 };
 </script>

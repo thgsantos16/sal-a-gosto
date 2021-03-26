@@ -7,13 +7,14 @@
                  :key="professor.id"
                  :professor="professor"
                  :left="i % 2 !== 0"
+                 v-scroll-reveal
                  :class="{ last: i === professores.length - 1 }" />
     </div>
   </div>
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 
 import Hero from '../components/Hero.vue';
 import Professor from '../components/Professor.vue';
@@ -27,65 +28,57 @@ export default {
   data() {
     return {
       hero: {
-        title: 'Professores',
-        small: 'conheça nossos',
-        summary: `Você confere aqui: História do nhoque, cultura, receitas e muito mais!
-                 Uma aula completa das centenas que estão disponíveis na maior plataforma de gastronomia,
-                 totalmente gratuita para você assistir!!!`,
+        title: '',
+        small: '',
+        summary: '',
+        ready: false,
       },
-      professores: [
-        {
-          id: 1,
-          name: 'Gabriel Lourenço',
-          specialty: 'especialista em culinária oriental',
-          facebook: 'chefgabi',
-          youtube: 'chefgabi',
-          instagram: 'chefgabi',
-          summary: `Você confere aqui: História do nhoque, cultura, receitas e muito mais!
-                 Uma aula completa das centenas que estão disponíveis na maior plataforma de gastronomia,
-                 totalmente gratuita para você assistir!!!`,
-        },
-        {
-          id: 2,
-          name: 'Gabriel Lourenço',
-          specialty: 'especialista em culinária oriental',
-          facebook: 'chefgabi',
-          youtube: 'chefgabi',
-          instagram: 'chefgabi',
-          summary: `Você confere aqui: História do nhoque, cultura, receitas e muito mais!
-                 Uma aula completa das centenas que estão disponíveis na maior plataforma de gastronomia,
-                 totalmente gratuita para você assistir!!!`,
-        },
-        {
-          id: 3,
-          name: 'Gabriel Lourenço',
-          specialty: 'especialista em culinária oriental',
-          facebook: 'chefgabi',
-          youtube: 'chefgabi',
-          instagram: 'chefgabi',
-          summary: `Você confere aqui: História do nhoque, cultura, receitas e muito mais!
-                 Uma aula completa das centenas que estão disponíveis na maior plataforma de gastronomia,
-                 totalmente gratuita para você assistir!!!`,
-        },
-        {
-          id: 4,
-          name: 'Gabriel Lourenço',
-          specialty: 'especialista em culinária oriental',
-          facebook: 'chefgabi',
-          youtube: 'chefgabi',
-          instagram: 'chefgabi',
-          summary: `Você confere aqui: História do nhoque, cultura, receitas e muito mais!
-                 Uma aula completa das centenas que estão disponíveis na maior plataforma de gastronomia,
-                 totalmente gratuita para você assistir!!!`,
-        },
-      ],
+      professores: [],
     };
+  },
+  computed: {
+    ...mapGetters(['getApiUrl']),
   },
   methods: {
     ...mapActions(['setSiteTitle']),
   },
   beforeMount() {
     this.setSiteTitle('Professores | Sal a Gosto');
+
+    let url = `${this.getApiUrl}&mod=conteudos&where=nome_arquivo=%22professores%22`;
+    fetch(url)
+      .then((res) => res.json())
+      .then((res) => {
+        const text = res.result[0].conteudos[0];
+        this.hero.small = text.titulo;
+
+        const html = document.createElement('div');
+        html.innerHTML = text.texto;
+        this.hero.title = html.querySelector('h1').innerText;
+        html.querySelector('h1').remove();
+        this.hero.summary = html.innerText.replaceAll('\\n', '');
+        this.hero.image = text.banner_topo;
+        this.hero.ready = true;
+      });
+
+    url = `${this.getApiUrl}&mod=professores`;
+
+    fetch(url)
+      .then((res) => res.json())
+      .then((res) => {
+        const { professores } = res.result[0];
+        professores.forEach((prof) => {
+          this.professores.push({
+            id: prof.id,
+            name: prof.nome,
+            specialty: prof.chamada_pt,
+            facebook: prof.url_facebook,
+            youtube: prof.url_youtube,
+            instagram: prof.url_instagram,
+            summary: prof.descricao_pt,
+          });
+        });
+      });
   },
 };
 </script>

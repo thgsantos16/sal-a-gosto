@@ -3,13 +3,13 @@
     <hero :data="hero" />
 
     <div class="stripes">
-      <stripe v-for="stripe in stripes" :key="stripe.id" :stripe="stripe" />
+      <stripe v-scroll-reveal v-for="stripe in stripes" :key="stripe.id" :stripe="stripe" />
     </div>
   </div>
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 
 import Hero from '../components/Hero.vue';
 import Stripe from '../components/Stripe.vue';
@@ -31,32 +31,46 @@ export default {
         hasButton: true,
         buttonText: 'Assistir',
       },
-      stripes: [
-        {
-          id: 1,
-          title: 'continuar assistindo',
-        },
-        {
-          id: 2,
-          title: 'minha lista',
-        },
-        {
-          id: 3,
-          title: 'lançamentos',
-          classes: ['bigger'],
-        },
-        {
-          id: 4,
-          title: 'frutos do mar',
-        },
-      ],
+      stripes: [],
     };
+  },
+  computed: {
+    ...mapGetters(['getApiUrl']),
   },
   methods: {
     ...mapActions(['setSiteTitle']),
   },
   beforeMount() {
     this.setSiteTitle('Sal a Gosto');
+
+    let url = `${this.getApiUrl}&meth=getAulas`;
+
+    fetch(url)
+      .then((res) => res.json())
+      .then((res) => {
+        const { aulas } = res.result[0];
+
+        aulas.forEach((aula) => {
+          Object.values(aula).forEach((cat, i) => {
+            if (cat.length > 0) {
+              this.stripes.push({
+                title: cat[0].categoria,
+                classes: cat,
+                id: i,
+              });
+            }
+          });
+        });
+      });
+
+    url = `${this.getApiUrl}&mod=banners`;
+
+    fetch(url)
+      .then((res) => res.json())
+      .then((res) => {
+        console.log(res);
+        this.hero.ready = true;
+      });
   },
 };
 </script>

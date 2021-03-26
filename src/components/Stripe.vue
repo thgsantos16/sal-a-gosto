@@ -3,32 +3,12 @@
     <h3>{{ stripe.title }}</h3>
 
     <VueSlickCarousel v-bind="settings">
-      <div class="image">
-        <div class="text">Sushi</div>
-      </div>
-      <div class="image">
-        <div class="text">Sushi</div>
-      </div>
-      <div class="image">
-        <div class="text">Sushi</div>
-      </div>
-      <div class="image">
-        <div class="text">Sushi</div>
-      </div>
-      <div class="image">
-        <div class="text">Sushi</div>
-      </div>
-      <div class="image">
-        <div class="text">Sushi</div>
-      </div>
-      <div class="image">
-        <div class="text">Sushi</div>
-      </div>
-      <div class="image">
-        <div class="text">Sushi</div>
-      </div>
-      <div class="image">
-        <div class="text">Sushi</div>
+      <div class="image"
+           v-for="cls in stripe.classes"
+           :key="cls.id"
+           @click="openVideo(cls)"
+           :style="{ backgroundImage: `url(${cls.imagem_url})` }">
+        <div class="text">{{ cls.titulo }}</div>
       </div>
     </VueSlickCarousel>
   </div>
@@ -40,10 +20,36 @@ import 'vue-slick-carousel/dist/vue-slick-carousel.css';
 import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css';
 
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import { mapActions } from 'vuex';
+
+interface ClassObject {
+  apimsg: string|null;
+  apistatus: string|null;
+  arquivo: string|null;
+  arquivo_url: string|null;
+  categoria: string|null;
+  data_disponivel: string|null;
+  descricao: string|null;
+  duracao: string|null;
+  id: string|null;
+  id_plano_minimo: string|null;
+  id_tipo: string|null;
+  imagem: string|null;
+  imagem_url: string|null;
+  live: string|null;
+  preco: string|null;
+  professores: string|null;
+  publico: string|null;
+  receitas: string|null;
+  resumo: string|null;
+  tags: string|null;
+  titulo: string|null;
+}
 
 interface StripeObject {
   title: string;
   id: number;
+  classes: Array<ClassObject>;
 }
 
 interface CarouselSettings {
@@ -62,6 +68,9 @@ interface CarouselSettings {
 @Component({
   components: {
     VueSlickCarousel,
+  },
+  methods: {
+    ...mapActions(['changeVideoDisplay']),
   },
 })
 export default class Stripe extends Vue {
@@ -107,6 +116,12 @@ export default class Stripe extends Vue {
       ],
     };
   }
+
+  openVideo(video: ClassObject) {
+    console.log(video);
+    this.$store.dispatch('changeVideoInfo', video);
+    this.$store.dispatch('changeVideoDisplay', true);
+  }
 }
 </script>
 
@@ -115,6 +130,7 @@ export default class Stripe extends Vue {
 .stripe-carousel {
   padding: 3px 0 18px;
   text-align: left;
+  min-height: 280px;
 
   h3 {
     padding: 10px 0 5px 70px;
@@ -168,7 +184,7 @@ export default class Stripe extends Vue {
 
           .text {
               opacity: 1;
-              margin-top: 142px;
+              margin-top: 133px;
               position: absolute;
           }
       }
@@ -176,7 +192,7 @@ export default class Stripe extends Vue {
       .text {
           opacity: 0;
           transition: all 0.43s;
-          margin-top: 170px;
+          margin-top: 152px;
           position: absolute;
           text-transform: uppercase;
           font-weight: 800;

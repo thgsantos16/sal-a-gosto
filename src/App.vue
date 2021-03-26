@@ -13,11 +13,11 @@
     </transition>
 
     <transition appear name="slow-fade">
-      <footer-component />
+      <footer-component v-scroll-reveal />
     </transition>
 
     <transition appear name="slow-fade">
-      <video-component v-if="isShowingVideo" />
+      <video-component v-if="isShowingVideo" :video="getVideo" />
     </transition>
   </div>
 </template>
@@ -37,11 +37,16 @@ import FooterComponent from './components/FooterComponent.vue';
     FooterComponent,
   },
   computed: {
-    ...mapGetters(['isShowingVideo', 'getSiteTitle']),
+    ...mapGetters(['isShowingVideo', 'getSiteTitle', 'getVideo']),
   },
 })
 export default class App extends Vue {
+  contents: object;
 
+  constructor() {
+    super();
+    this.contents = {};
+  }
 }
 </script>
 
@@ -86,6 +91,17 @@ body {
   text-align: center;
   color: #EEE;
 
+  .error-container {
+    text-align: left;
+    font-size: 85%;
+    color: #f9262d;
+
+    div {
+      margin-top: -3px;
+      padding: 0 0 5px 20px;
+    }
+  }
+
   .button {
     transition: all 0.43s;
     background-color: #e00109;
@@ -100,7 +116,7 @@ body {
     }
   }
 
-  input {
+  input, select {
     transition: all 0.43s;
     display: block;
     width: 100%;
@@ -113,6 +129,14 @@ body {
 
     &:focus {
       border-color: #e22229;
+    }
+
+    select {
+      padding-right: 25px;
+    }
+
+    .grey {
+      color: #555;
     }
   }
 

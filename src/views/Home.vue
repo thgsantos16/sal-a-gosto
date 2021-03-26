@@ -3,7 +3,10 @@
     <hero :data="hero" />
 
     <div class="stripes">
-      <stripe v-scroll-reveal v-for="stripe in stripes" :key="stripe.id" :stripe="stripe" />
+      <stripe v-scroll-reveal
+              v-for="stripe in stripes"
+              :key="`${stripe.id}-${stripe.title}`"
+              :stripe="stripe" />
     </div>
   </div>
 </template>

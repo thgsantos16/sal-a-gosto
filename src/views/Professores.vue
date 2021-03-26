@@ -71,6 +71,7 @@ export default {
           this.professores.push({
             id: prof.id,
             name: prof.nome,
+            image: prof.imagem,
             specialty: prof.chamada_pt,
             facebook: prof.url_facebook,
             youtube: prof.url_youtube,

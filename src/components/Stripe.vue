@@ -5,9 +5,9 @@
     <VueSlickCarousel v-bind="settings">
       <div class="image"
            v-for="cls in stripe.classes"
-           :key="cls.id"
+           :key="`${cls.id}-${cls.titulo}`"
            @click="openVideo(cls)"
-           :style="{ backgroundImage: `url(${cls.imagem_url})` }">
+           :style="{ backgroundImage: cls.imagem_url ? `url(${cls.imagem_url})` : '' }">
         <div class="text">{{ cls.titulo }}</div>
       </div>
     </VueSlickCarousel>
@@ -171,7 +171,7 @@ export default class Stripe extends Vue {
     .image {
       top: 0;
       transition: all 0.43s;
-      background: url(../assets/preview.jpg) center/cover;
+      background: #333 url(../assets/preview.jpg) center/cover;
       height: 186px;
       position: relative;
 

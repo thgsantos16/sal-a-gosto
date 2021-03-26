@@ -1,13 +1,14 @@
 <template>
   <div class="professor row" :class="{ 'justify-content-end left': left }">
     <div class="col-lg-auto col-md-12" :class="{ 'order-12': left }">
-      <small>{{ professor.specialty }}</small>
-      <div class="image"></div>
+      <small v-html="clean(professor.specialty)" />
+      <div class="image"
+           :style="{ backgroundImage: professor.image ? `url(${professor.image})` : ''}" />
     </div>
 
-    <div class="col-lg-4 col-md-5 data" :class="{ 'order-1': left }">
+    <div class="col-lg col-xl-5 data" :class="{ 'order-1': left }">
       <h2>{{ professor.name }}</h2>
-      <div class="summary">{{ professor.summary }}</div>
+      <div class="summary" v-html="clean(professor.summary)" />
       <div class="social-media">
         <a :href="professor.facebook" class="facebook" v-if="professor.facebook"></a>
         <a :href="professor.instagram" class="instagram" v-if="professor.instagram"></a>
@@ -34,7 +35,14 @@ interface ProfessorObject {
   display?: string;
 }
 
-@Component
+@Component({
+  methods: {
+    clean(val: string): string {
+      if (!val) return '';
+      return val.replaceAll('\\n', '');
+    },
+  },
+})
 export default class Professor extends Vue {
   @Prop() private professor!: ProfessorObject;
 
@@ -63,13 +71,24 @@ export default class Professor extends Vue {
     font-weight: bold;
     text-transform: lowercase;
     font-size: 18px;
+    max-width: 584px;
+    display: block;
+
+    @media (max-width: 1240px) {
+      max-width: 430px;
+    }
   }
 
   .image {
     margin-top: 10px;
     height: 383px;
     width: 584px;
-    background-color: #FFF;
+    background: #AAA center/cover no-repeat;
+
+    @media (max-width: 1240px) {
+      width: 430px;
+      height: 250px;
+    }
   }
 
   .data {

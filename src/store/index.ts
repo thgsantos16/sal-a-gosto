@@ -11,7 +11,9 @@ const CHANGE_VIDEO_DISPLAY = 'CHANGE_VIDEO_DISPLAY';
 
 export default new Vuex.Store({
   state: {
-    apiUrl: 'https://uzzye.com/connect/salagosto/api?token=uzzyeabuse&get',
+    apiUrl: window.location.hostname === 'salagosto.com.br'
+      ? 'https://salagosto.com.br/2021/api?token=uzzyeabuse&get'
+      : 'https://uzzye.com/connect/salagosto/api?token=uzzyeabuse&get',
     siteTitle: 'Sal a Gosto',
     user: null,
     showVideo: false,

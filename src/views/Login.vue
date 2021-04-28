@@ -4,6 +4,10 @@
       <h1>Login</h1>
 
       <form @submit.prevent="submitLogin">
+        <div class="error-container center" v-if="!!error">
+          {{ error }}
+        </div>
+
         <input v-model="$v.email.$model" name="email" placeholder="Email">
         <div class="error-container" v-if="$v.email.$dirty">
           <div class="error" v-if="!$v.email.required">Email é obrigatório!</div>
@@ -45,6 +49,7 @@ export default {
     return {
       email: '',
       password: '',
+      error: '',
     };
   },
   computed: {
@@ -67,7 +72,7 @@ export default {
           if (res.result[0].login.length > 0) {
             this.setUser(res.result[0].login[0]);
             this.$router.push({ name: 'home' });
-          }
+          } else this.error = 'Usuário ou senha incorretos';
         });
     },
   },
@@ -85,9 +90,14 @@ export default {
 
 .login {
   .login-inner {
-    padding: 15vh 0;
+    padding: 13vh 0;
     width: 486px;
     margin: 0 auto;
+    max-width: 80%;
+
+    @media screen and (max-width: 1024px) {
+      padding: 18vh 0 7vh;
+    }
 
     h1 {
       text-align: left;

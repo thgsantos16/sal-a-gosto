@@ -120,11 +120,17 @@
                   :class="{ selected: agreement }"
                   @click="agreement = !agreement"></span>
 
-            Concordo com os
-            <router-link :to="{ name: 'terms' }">Termos de Uso</router-link>
-            e
-            <router-link :to="{ name: 'politics' }">Política de Privacidade</router-link>
-            da plataforma.
+            <span class="agreement-text">
+              Concordo com os
+              <router-link :to="{ name: 'terms' }">Termos de Uso</router-link>
+              e
+              <router-link :to="{ name: 'politics' }">Política de Privacidade</router-link>
+              da plataforma.
+            </span>
+
+            <div class="error-container pt-2 pl-2" v-if="showAgreementError">
+              <div class="error">É necessário concordar com os Termos e Políticas!</div>
+            </div>
           </div>
 
           <div class="col-lg-auto col-md-12">
@@ -162,6 +168,7 @@ export default {
       cep: '',
       estado: 'RS',
       agreement: false,
+      showAgreementError: false,
     };
   },
   computed: {
@@ -173,11 +180,20 @@ export default {
       return _.find(EstadosCidades.estados, { sigla: this.estado }).cidades;
     },
   },
+  watch: {
+    agreement(val) {
+      if (val) this.showAgreementError = false;
+    },
+  },
   methods: {
     ...mapActions(['setSiteTitle', 'setUser']),
     submitRegister() {
       this.$v.$touch();
-      if (!this.$v.$invalid) this.sendForm();
+      if (!this.agreement) this.showAgreementError = true;
+      else {
+        this.showAgreementError = false;
+        if (!this.$v.$invalid) this.sendForm();
+      }
     },
     sendForm() {
       let url = `${this.getApiUrl}&meth=cadastro`;
@@ -199,9 +215,15 @@ export default {
       fetch(url)
         .then((res) => res.json())
         .then((res) => {
-          if (res.result[0].login.length > 0) {
+          if (res.result[0].login && res.result[0].login.length > 0) {
             this.setUser(res.result[0].login[0]);
-            this.$router.push({ name: 'home' });
+            this.$router.push({ name: 'planos' });
+          } else {
+            this.$bvToast.toast(res.result[0].cadastro[0].erro, {
+              title: 'Algo deu errado!',
+              variant: 'danger',
+              solid: true,
+            });
           }
         });
     },
@@ -235,6 +257,10 @@ export default {
     max-width: 1240px;
     margin: 0 auto;
 
+    @media screen and (max-width: 1024px) {
+      width: 80%;
+    }
+
     h1 {
       text-align: left;
     }
@@ -247,6 +273,23 @@ export default {
       .agreement {
         text-align: left;
         padding-top: 12px;
+
+        .agreement-text {
+            display: inline-block;
+            width: calc(100% - 38px);
+
+            @media screen and (max-width: 1024px) {
+              font-size: 0.8rem;
+              vertical-align: top;
+              margin-bottom: -7px;
+            }
+        }
+      }
+
+      .button {
+        @media screen and (max-width: 1024px) {
+          margin-top: 25px;
+        }
       }
     }
 

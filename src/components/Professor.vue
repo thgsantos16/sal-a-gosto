@@ -1,20 +1,32 @@
 <template>
   <div class="professor row" :class="{ 'justify-content-end left': left }">
-    <div class="col-lg-auto col-md-12" :class="{ 'order-12': left }">
+    <div class="col-lg-auto col-md-12" :class="{ 'order-lg-12': left }">
       <small v-html="clean(professor.specialty)" />
-      <div class="image"
-           :style="{ backgroundImage: professor.image ? `url(${professor.image})` : ''}" />
+      <div class="image order-1"
+           v-lazy:background-image="bgImage(professor.image)" />
     </div>
 
-    <div class="col-lg col-xl-5 data" :class="{ 'order-1': left }">
+    <div class="col-lg data" :class="{ 'order-1': left }">
       <h2>{{ professor.name }}</h2>
       <div class="summary" v-html="clean(professor.summary)" />
       <div class="social-media">
-        <a :href="professor.facebook" class="facebook" v-if="professor.facebook"></a>
-        <a :href="professor.instagram" class="instagram" v-if="professor.instagram"></a>
-        <a :href="professor.youtube" class="youtube" v-if="professor.youtube"></a>
-        <a :href="professor.instagram" class="instagram-text" v-if="professor.instagram">
-          @{{ professor.instagram }}
+        <a target="_blank"
+           :href="professor.facebook"
+           class="facebook"
+           v-if="professor.facebook"></a>
+        <a target="_blank"
+           :href="professor.instagram"
+           class="instagram"
+           v-if="professor.instagram"></a>
+        <a target="_blank"
+           :href="professor.youtube"
+           class="youtube"
+           v-if="professor.youtube"></a>
+        <a target="_blank"
+           :href="professor.instagram"
+           class="instagram-text"
+           v-if="professor.instagram">
+          @{{ adjustInsta(professor.instagram) }}
         </a>
       </div>
     </div>
@@ -41,6 +53,16 @@ interface ProfessorObject {
       if (!val) return '';
       return val.replaceAll('\\n', '');
     },
+    bgImage(img: string) {
+      // eslint-disable-next-line global-require
+      return img || require('../assets/preview.jpg');
+    },
+    adjustInsta(insta) {
+      if (insta[0] === '@') return insta.substr(1);
+      if (insta.split('/').length <= 1) return insta;
+      const res = insta.split('/');
+      return res[res.length - 1] ? res[res.length - 1] : res[res.length - 2];
+    },
   },
 })
 export default class Professor extends Vue {
@@ -54,10 +76,21 @@ export default class Professor extends Vue {
 
 .professor {
   margin: 16px 0;
-  padding-top: 25px;
+  padding-top: 16px;
   text-align: left;
   padding-bottom: 20px;
   border-bottom: 2px solid #dededf;
+
+  @media screen and (min-width: 1421px) {
+    width: 80%;
+    margin-left: 10%;
+  }
+
+  @media screen and (max-width: 1420px) {
+    .summary {
+      font-size: .9rem;
+    }
+  }
 
   &.last {
     border-bottom: none;
@@ -65,29 +98,44 @@ export default class Professor extends Vue {
 
   &.left {
     text-align: right;
+
+    @media screen and (max-width: 1024px) {
+      text-align: left;
+    }
   }
 
   small {
     font-weight: bold;
     text-transform: lowercase;
     font-size: 18px;
-    max-width: 584px;
+    max-width: 430px;
     display: block;
 
-    @media (max-width: 1240px) {
-      max-width: 430px;
+    @media screen and (max-width: 1420px) {
+      max-width: 384px;
+      font-size: 16px;
+    }
+
+    @media (max-width: 991.99px) {
+      max-width: none;
+      text-align: center;
     }
   }
 
   .image {
     margin-top: 10px;
-    height: 383px;
-    width: 584px;
     background: #AAA center/cover no-repeat;
+    width: 430px;
+    height: 250px;
+    max-width: 100%;
 
-    @media (max-width: 1240px) {
-      width: 430px;
-      height: 250px;
+    @media screen and (max-width: 1420px) {
+      width: 384px;
+      height: 216px;
+    }
+
+    @media (max-width: 991.99px) {
+      margin: 12px auto 0;
     }
   }
 
@@ -95,10 +143,18 @@ export default class Professor extends Vue {
     padding-left: 43px;
     padding-top: 52px;
 
+    @media screen and (max-width: 1024px) {
+      padding-left: 15px;
+    }
+
     h2 {
       font-weight: bold;
-      font-size: 38px;
+      font-size: 34px;
       margin-bottom: 25px;
+
+      @media screen and (max-width: 1420px) {
+        font-size: 30px;
+      }
     }
 
     .social-media {

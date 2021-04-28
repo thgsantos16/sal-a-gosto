@@ -3,10 +3,16 @@
     <hero :data="hero" />
 
     <div class="stripes">
-      <stripe v-scroll-reveal
-              v-for="stripe in stripes"
-              :key="`${stripe.id}-${stripe.title}`"
-              :stripe="stripe" />
+      <transition mode="out-in" name="fade" appear>
+        <Loader v-if="!loaded" />
+        <div v-else>
+          <stripe v-scroll-reveal
+                  v-for="stripe in stripes"
+                  :key="`${stripe.id}-${stripe.title}`"
+                  :stripe="stripe"
+                  :left="!alignCenter(stripe)" />
+        </div>
+      </transition>
     </div>
   </div>
 </template>
@@ -14,6 +20,7 @@
 <script>
 import { mapActions, mapGetters } from 'vuex';
 
+import _ from 'lodash';
 import Hero from '../components/Hero.vue';
 import Stripe from '../components/Stripe.vue';
 
@@ -26,15 +33,16 @@ export default {
   data() {
     return {
       hero: {
-        title: 'Nhoque',
-        small: 'cozinha italiana',
-        summary: `Você confere aqui: História do nhoque, cultura, receitas e muito mais!
-                 Uma aula completa das centenas que estão disponíveis na maior plataforma de gastronomia,
-                 totalmente gratuita para você assistir!!!`,
-        hasButton: true,
-        buttonText: 'Assistir',
+        title: '',
+        small: '',
+        summary: '',
+        hasButton: false,
+        buttonText: '',
+        buttonUrl: '',
+        ready: false,
       },
       stripes: [],
+      loaded: false,
     };
   },
   computed: {
@@ -42,6 +50,13 @@ export default {
   },
   methods: {
     ...mapActions(['setSiteTitle']),
+    alignCenter(stripe) {
+      if (stripe.classes.length < 3) return false;
+      if (window.innerWidth > 600 && stripe.classes.length < 4) return false;
+      if (window.innerWidth > 1024 && stripe.classes.length < 6) return false;
+      if (window.innerWidth > 1600 && stripe.classes.length < 8) return false;
+      return true;
+    },
   },
   beforeMount() {
     this.setSiteTitle('Sal a Gosto');
@@ -52,10 +67,15 @@ export default {
       .then((res) => res.json())
       .then((res) => {
         const { aulas } = res.result[0];
+        let video = null;
 
         aulas.forEach((aula) => {
           Object.values(aula).forEach((cat, i) => {
             if (cat.length > 0) {
+              if (!video && this.$route.params.id) {
+                video = _.find(cat, { id: this.$route.params.id });
+              }
+
               this.stripes.push({
                 title: cat[0].categoria,
                 classes: cat,
@@ -64,14 +84,34 @@ export default {
             }
           });
         });
+
+        if (this.$route.params.id && video) {
+          this.$store.dispatch('changeVideoInfo', video);
+          this.$store.dispatch('changeVideoDisplay', true);
+        }
+
+        this.loaded = true;
       });
 
-    url = `${this.getApiUrl}&mod=banners`;
+    url = `${this.getApiUrl}&mod=banners&order=ranking%20ASC`;
 
     fetch(url)
       .then((res) => res.json())
       .then((res) => {
-        console.log(res);
+        this.hero.image = res.result[0].banners[0].cinemagraph
+          ? res.result[0].banners[0].cinemagraph
+          : res.result[0].banners[0].imagem_bg_pt;
+
+        if (res.result[0].banners[0].video_embed) {
+          this.hero.video = res.result[0].banners[0].video_embed;
+        }
+
+        this.hero.title = res.result[0].banners[0].titulo_pt || '';
+        this.hero.summary = res.result[0].banners[0].descricao_pt || '';
+        this.hero.buttonText = res.result[0].banners[0].texto_botao_pt || 'Assistir';
+        this.hero.hasButton = !!res.result[0].banners[0].url;
+        this.hero.buttonUrl = res.result[0].banners[0].url || '';
+
         this.hero.ready = true;
       });
   },

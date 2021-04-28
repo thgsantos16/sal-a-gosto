@@ -9,15 +9,19 @@
     </transition>
 
     <transition name="slow-fade" mode="out-in" appear>
-      <router-view />
+      <router-view class="router-view" />
     </transition>
 
     <transition appear name="slow-fade">
-      <footer-component v-scroll-reveal />
+      <footer-component />
     </transition>
 
     <transition appear name="slow-fade">
       <video-component v-if="isShowingVideo" :video="getVideo" />
+    </transition>
+
+    <transition appear name="slow-fade">
+      <LoaderApi v-if="isLoadingApi" />
     </transition>
   </div>
 </template>
@@ -30,6 +34,10 @@ import VideoComponent from './components/VideoComponent.vue';
 import HeaderComponent from './components/HeaderComponent.vue';
 import FooterComponent from './components/FooterComponent.vue';
 
+export interface VueInterface extends Vue {
+  getApiUrl: string;
+}
+
 @Component({
   components: {
     VideoComponent,
@@ -37,7 +45,48 @@ import FooterComponent from './components/FooterComponent.vue';
     FooterComponent,
   },
   computed: {
-    ...mapGetters(['isShowingVideo', 'getSiteTitle', 'getVideo']),
+    ...mapGetters([
+      'isShowingVideo',
+      'getSiteTitle',
+      'getVideo',
+      'getApiUrl',
+      'isLoadingApi',
+    ]),
+  },
+  watch: {
+    isShowingVideo: {
+      handler(val) {
+        const body = document.querySelector('body');
+        if (val) {
+          if (body) body.style.overflow = 'hidden';
+        } else if (body) body.style.overflow = 'auto';
+      },
+      immediate: true,
+    },
+  },
+  beforeMount() {
+    if (this.$store.getters.getTeachers.length === 0) {
+      const url = `${this.$store.getters.getApiUrl}&mod=professores&order=ranking%20ASC`;
+
+      fetch(url)
+        .then((res) => res.json())
+        .then((res) => {
+          const { professores } = res.result[0];
+          this.$store.dispatch('setTeachers', professores);
+        });
+    }
+  },
+  metaInfo: {
+    meta: [
+      {
+        property: 'og:title',
+        content: 'Sal a Gosto',
+      },
+      {
+        property: 'og:image',
+        content: 'https://salagosto.com.br/img/imgShare.png',
+      },
+    ],
   },
 })
 export default class App extends Vue {
@@ -91,10 +140,22 @@ body {
   text-align: center;
   color: #EEE;
 
+  .router-view {
+    min-height: 50vh;
+
+    @media screen and (max-width: 1024px) {
+      padding-top: 88px;
+    }
+  }
+
   .error-container {
     text-align: left;
     font-size: 85%;
     color: #f9262d;
+
+    &.center {
+      text-align: center;
+    }
 
     div {
       margin-top: -3px;
@@ -116,7 +177,7 @@ body {
     }
   }
 
-  input, select {
+  input:not(.multiselect__input), select {
     transition: all 0.43s;
     display: block;
     width: 100%;
@@ -129,6 +190,12 @@ body {
 
     &:focus {
       border-color: #e22229;
+    }
+
+    &:disabled {
+      background-color: #00000022;
+      color: #AAA;
+      cursor: not-allowed;
     }
 
     select {
@@ -205,5 +272,65 @@ body {
 .slow-fade-enter, .slow-fade-leave-to {
   opacity: 0;
 }
+
+// CSS Spinner
+
+.lds-ellipsis {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+.lds-ellipsis div {
+  position: absolute;
+  top: 33px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #fff;
+  animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+.lds-ellipsis div:nth-child(1) {
+  left: 8px;
+  animation: lds-ellipsis1 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(2) {
+  left: 8px;
+  animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(3) {
+  left: 32px;
+  animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(4) {
+  left: 56px;
+  animation: lds-ellipsis3 0.6s infinite;
+}
+@keyframes lds-ellipsis1 {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes lds-ellipsis3 {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+@keyframes lds-ellipsis2 {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(24px, 0);
+  }
+}
+
+@import "scss/dropdown";
 
 </style>

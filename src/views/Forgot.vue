@@ -3,15 +3,19 @@
     <div class="forgot-inner">
       <h1>Recupere sua senha</h1>
 
-      <form>
-        <input placeholder="Entre seu email">
+      <form @submit.prevent="submitForgot">
+        <input placeholder="Entre seu email" v-model="$v.email.$model">
+        <div class="error-container" v-if="$v.email.$dirty">
+          <div class="error" v-if="!$v.email.required">Email é obrigatório!</div>
+          <div class="error" v-else-if="!$v.email.email">Esse não é um email válido!</div>
+        </div>
 
         <div class="buttons row">
           <div class="col-lg forgot">
           </div>
 
           <div class="col-lg-auto col-md-12">
-            <button class="button">Recuperar</button>
+            <button type="submit" class="button">Recuperar</button>
           </div>
         </div>
       </form>
@@ -26,7 +30,8 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
+import { required, email } from 'vuelidate/lib/validators';
 
 export default {
   name: 'Forgot',
@@ -34,15 +39,41 @@ export default {
   },
   data() {
     return {
-      username: '',
-      password: '',
+      email: '',
     };
+  },
+  computed: {
+    ...mapGetters(['getApiUrl']),
   },
   methods: {
     ...mapActions(['setSiteTitle']),
+    submitForgot() {
+      this.$v.$touch();
+      if (!this.$v.$invalid) {
+        let url = `${this.getApiUrl}&meth=novaSenha`;
+        url += `&login=${this.email}`;
+
+        fetch(url)
+          .then((res) => res.json())
+          .then((res) => {
+            if (res.result[0].login.length > 0) {
+              this.$bvToast.toast('Enviamos um email com sua nova senha!', {
+                title: 'Email enviado',
+                variant: 'success',
+                solid: true,
+              });
+
+              this.$router.push({ name: 'login' });
+            } else this.error = 'Usuário não encontrado.';
+          });
+      }
+    },
   },
   beforeMount() {
     this.setSiteTitle('Esqueci minha senha | Sal a Gosto');
+  },
+  validations: {
+    email: { required, email },
   },
 };
 </script>

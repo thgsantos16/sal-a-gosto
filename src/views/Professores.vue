@@ -57,11 +57,18 @@ export default {
         this.hero.title = html.querySelector('h1').innerText;
         html.querySelector('h1').remove();
         this.hero.summary = html.innerText.replaceAll('\\n', '');
-        this.hero.image = text.banner_topo;
+      });
+
+    url = `${this.getApiUrl}&mod=imagens&where=referencia=%22professores-capa%22`;
+    fetch(url)
+      .then((res) => res.json())
+      .then((res) => {
+        const image = res.result[0].imagens[0];
+        this.hero.image = image.imagem || '';
         this.hero.ready = true;
       });
 
-    url = `${this.getApiUrl}&mod=professores`;
+    url = `${this.getApiUrl}&mod=professores&order=ranking%20ASC`;
 
     fetch(url)
       .then((res) => res.json())
@@ -92,6 +99,10 @@ export default {
   max-width: 1600px;
   width: 90%;
   margin: 124px auto 0;
+
+  @media screen and (max-width: 1024px) {
+    margin-top: 142px;
+  }
 }
 
 </style>

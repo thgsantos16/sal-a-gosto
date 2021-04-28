@@ -7,7 +7,7 @@
            v-for="cls in stripe.classes"
            :key="`${cls.id}-${cls.titulo}`"
            @click="openVideo(cls)"
-           :style="{ backgroundImage: cls.imagem_url ? `url(${cls.imagem_url})` : '' }">
+           v-lazy:background-image="bgImage(cls.imagem_url)">
         <div class="text">{{ cls.titulo }}</div>
       </div>
     </VueSlickCarousel>
@@ -15,6 +15,8 @@
 </template>
 
 <script lang="ts">
+
+import moment from 'moment';
 import VueSlickCarousel from 'vue-slick-carousel';
 import 'vue-slick-carousel/dist/vue-slick-carousel.css';
 import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css';
@@ -44,6 +46,7 @@ interface ClassObject {
   resumo: string|null;
   tags: string|null;
   titulo: string|null;
+  permalink: string|null;
 }
 
 interface StripeObject {
@@ -71,10 +74,17 @@ interface CarouselSettings {
   },
   methods: {
     ...mapActions(['changeVideoDisplay']),
+    bgImage(img: string) {
+      const time = moment(new Date()).format('YYYYMMDDHH');
+      // eslint-disable-next-line global-require
+      return `${img}?${time}` || require('../assets/preview.jpg');
+    },
   },
 })
 export default class Stripe extends Vue {
   @Prop() private stripe!: StripeObject;
+
+  @Prop() private left!: boolean;
 
   settings: CarouselSettings;
 
@@ -84,17 +94,17 @@ export default class Stripe extends Vue {
     this.settings = {
       arrows: true,
       dots: false,
-      slidesToShow: 6,
-      slidesToScroll: 6,
-      centerMode: true,
+      slidesToShow: 7,
+      slidesToScroll: 1,
+      centerMode: !this.left,
       swipeToSlide: true,
+      infinite: true,
       responsive: [
         {
           breakpoint: 1600,
           settings: {
-            slidesToShow: 4,
-            slidesToScroll: 4,
-            infinite: true,
+            slidesToShow: 5,
+            slidesToScroll: 1,
           },
         },
         {
@@ -102,15 +112,13 @@ export default class Stripe extends Vue {
           settings: {
             slidesToShow: 3,
             slidesToScroll: 3,
-            infinite: true,
           },
         },
         {
-          breakpoint: 600,
+          breakpoint: 800,
           settings: {
-            slidesToShow: 2,
-            slidesToScroll: 2,
-            initialSlide: 2,
+            slidesToShow: 1,
+            slidesToScroll: 1,
           },
         },
       ],
@@ -118,7 +126,18 @@ export default class Stripe extends Vue {
   }
 
   openVideo(video: ClassObject) {
-    console.log(video);
+    if (video.permalink) {
+      const permalink = video.permalink.split('/');
+
+      this.$router.push({
+        name: 'home-permalink',
+        params: {
+          id: permalink[2],
+          slug: permalink[1],
+        },
+      });
+    }
+    this.$store.dispatch('setVideoState', false);
     this.$store.dispatch('changeVideoInfo', video);
     this.$store.dispatch('changeVideoDisplay', true);
   }
@@ -136,7 +155,6 @@ export default class Stripe extends Vue {
     padding: 10px 0 5px 70px;
     font-size: 22px;
     font-weight: 800;
-    text-transform: lowercase;
   }
 
   .slick-prev {
@@ -172,8 +190,12 @@ export default class Stripe extends Vue {
       top: 0;
       transition: all 0.43s;
       background: #333 url(../assets/preview.jpg) center/cover;
-      height: 186px;
+      height: 178px;
       position: relative;
+
+      @media screen and (max-width: 1024px) {
+        height: 220px;
+      }
 
       &:hover {
           top: -7px;
@@ -192,13 +214,13 @@ export default class Stripe extends Vue {
       .text {
           opacity: 0;
           transition: all 0.43s;
-          margin-top: 152px;
+          margin-top: 142px;
           position: absolute;
           text-transform: uppercase;
           font-weight: 800;
           padding-left: 30px;
           text-shadow: 2px 2px 5px #00000077;
-          font-size: 24px;
+          font-size: 20px;
       }
     }
   }

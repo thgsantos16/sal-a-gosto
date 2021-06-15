@@ -34,6 +34,11 @@
                      class="search-field"
                      ref="search">
             </form>
+            <div class="advanced-search-link">
+              <a @click.prevent="advancedSearch">
+                Busca avançada
+              </a>
+            </div>
           </div>
           <div class="col-auto icon" @click="searchClick">
             <img class="search-icon" src="../assets/search.png">
@@ -82,6 +87,13 @@
       </div>
 
       <nav id="mobileNav" class="col" :class="{ active: menu }">
+        <form @submit.prevent="doSearch" ref="sf">
+          <input v-model="searchText"
+                  placeholder="Digite sua busca"
+                  class="search-field"
+                  ref="search">
+        </form>
+
         <router-link :to="{ name: 'escola'}">
           . a escola
         </router-link>
@@ -103,11 +115,16 @@
         <a v-if="isLoggedIn" href="#" @click.prevent="logout">
           . sair
         </a>
+
+        <router-link :to="{ name: 'login' }" class="button" key="login-button" v-else>
+          Login
+        </router-link>
+
         <div class="medias">
           <a target="_blank"
              v-for="link in links"
              :key="link.id"
-             :href="link.permalink"
+             :href="link.url"
              :class="link.referencia"></a>
         </div>
       </nav>
@@ -167,6 +184,11 @@ export default Vue.extend({
     ...mapActions(['setUser']),
     toogleMenu() {
       this.menu = !this.menu;
+    },
+    advancedSearch() {
+      this.showSearch = false;
+      this.searchText = '';
+      this.$router.push({ name: 'busca', params: { advancedSearch: 'true' } });
     },
     searchClick() {
       if (!this.showSearch) {
@@ -363,7 +385,7 @@ header {
     background: #111111EE;
     top: -100%;
     left: 0;
-    padding-top: 100px;
+    padding-top: 10vh;
 
     &.active {
       top: 0;
@@ -373,8 +395,8 @@ header {
       width: 70%;
       margin: 0 auto;
       display: block;
-      font-size: 1.4rem;
-      padding: 16px 0;
+      font-size: 2.8vh;
+      padding: 1.6vh 0;
       border-bottom: 1px #222 solid;
     }
 

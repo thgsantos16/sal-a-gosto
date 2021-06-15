@@ -111,14 +111,18 @@ export default class Stripe extends Vue {
           breakpoint: 1024,
           settings: {
             slidesToShow: 3,
-            slidesToScroll: 3,
+            slidesToScroll: 1,
+            arrows: false,
+            centerMode: false,
           },
         },
         {
-          breakpoint: 800,
+          breakpoint: 720,
           settings: {
-            slidesToShow: 1,
+            slidesToShow: 2,
             slidesToScroll: 1,
+            arrows: false,
+            centerMode: false,
           },
         },
       ],
@@ -126,20 +130,22 @@ export default class Stripe extends Vue {
   }
 
   openVideo(video: ClassObject) {
-    if (video.permalink) {
-      const permalink = video.permalink.split('/');
-
-      this.$router.push({
-        name: 'home-permalink',
-        params: {
-          id: permalink[2],
-          slug: permalink[1],
-        },
-      });
-    }
     this.$store.dispatch('setVideoState', false);
     this.$store.dispatch('changeVideoInfo', video);
-    this.$store.dispatch('changeVideoDisplay', true);
+    this.$store.dispatch('changeVideoDisplay', true)
+      .then(() => {
+        if (video.permalink && this.$route.name !== 'destaque') {
+          const permalink = video.permalink.split('/');
+
+          this.$router.push({
+            name: 'home-permalink',
+            params: {
+              id: permalink[2],
+              slug: permalink[1],
+            },
+          });
+        }
+      });
   }
 }
 </script>
@@ -150,6 +156,10 @@ export default class Stripe extends Vue {
   padding: 3px 0 18px;
   text-align: left;
   min-height: 280px;
+
+  @media screen and (max-width: 880px) {
+    min-height: 35vw;
+  }
 
   h3 {
     padding: 10px 0 5px 70px;
@@ -209,6 +219,21 @@ export default class Stripe extends Vue {
               margin-top: 133px;
               position: absolute;
           }
+      }
+
+      @media screen and (max-width: 880px) {
+        height: 34vw;
+
+        &:hover {
+          top: 0;
+          height: 34vw !important;
+          margin: 0;
+          width:100% !important;
+
+          .text {
+            opacity: 0;
+          }
+        }
       }
 
       .text {

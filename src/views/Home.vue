@@ -102,8 +102,13 @@ export default {
           ? res.result[0].banners[0].cinemagraph
           : res.result[0].banners[0].imagem_bg_pt;
 
+        this.hero.imageMobile = res.result[0].banners[0].cinemagraph_mobile
+          ? res.result[0].banners[0].cinemagraph_mobile
+          : res.result[0].banners[0].imagem_bg_mobile_pt;
+
         if (res.result[0].banners[0].video_embed) {
           this.hero.video = res.result[0].banners[0].video_embed;
+          this.hero.videoMobile = res.result[0].banners[0].video_embed_mobile;
         }
 
         this.hero.title = res.result[0].banners[0].titulo_pt || '';

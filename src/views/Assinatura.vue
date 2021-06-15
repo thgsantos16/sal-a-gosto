@@ -1,6 +1,6 @@
 <template>
   <div class="assinatura">
-    <div class="assinatura-inner">
+    <div class="assinatura-inner" v-if="loaded">
       <h1>Minha Assinatura</h1>
 
       <div class="assinatura">
@@ -27,6 +27,8 @@
       </div>
     </div>
 
+    <Loading v-else />
+
     <b-modal id="confirmar" centered hide-footer hide-header>
       <div class="d-block text-center">
         <h3>Você realmente deseja cancelar sua assinatura?</h3>
@@ -48,7 +50,6 @@
 
 <script>
 
-import _ from 'lodash';
 import { mapActions, mapGetters } from 'vuex';
 import { required } from 'vuelidate/lib/validators';
 
@@ -96,15 +97,15 @@ export default {
     if (!this.getUser.id_plano) this.$router.push({ name: 'planos' });
     this.setSiteTitle('Assinatura | Sal a Gosto');
 
-    const url = `${this.getApiUrl}&meth=getPlanos&id_usuario=${this.getUser.login_token}`;
+    let url = `${this.getApiUrl}&meth=getPlanos`;
+    url += `&id_usuario=${this.getUser.login_token}`;
+    url += `&id_plano=${this.getUser.id_plano}`;
 
     fetch(url)
       .then((res) => res.json())
       .then((res) => {
-        console.log('res planos');
-        console.log(res);
-        const plans = res.result[0].planos_assinatura;
-        this.currentPlan = _.find(plans, { id: this.getUser.id_plano });
+        // eslint-disable-next-line prefer-destructuring
+        this.currentPlan = res.result[0].planos_assinatura[0];
         this.loaded = true;
       });
   },

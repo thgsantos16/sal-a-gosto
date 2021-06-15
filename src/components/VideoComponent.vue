@@ -1,5 +1,5 @@
 <template>
-  <div class="video">
+  <div class="video-container">
     <div class="video-overlay" @click="closeVideo"></div>
     <div class="video-close" @click="closeVideo">x</div>
     <div class="video-inner" ref="inner">
@@ -130,6 +130,7 @@ export default Vue.extend({
     };
   },
   beforeMount() {
+    this.setMuted(true);
     let userId = '';
     if (this.getUser) userId = this.getUser.login_token;
 
@@ -172,13 +173,14 @@ export default Vue.extend({
       });
   },
   methods: {
-    ...mapActions(['changeVideoDisplay', 'setRedirect', 'setLoadingApi']),
+    ...mapActions(['changeVideoDisplay', 'setRedirect', 'setLoadingApi', 'setMuted']),
     leave() {
       if (!this.getUser) this.$router.push({ name: 'login' });
       else this.$router.push({ name: 'planos' });
       this.closeVideo();
     },
     closeVideo() {
+      this.setMuted(false);
       this.changeVideoDisplay(false);
     },
     toogleFav() {
@@ -293,7 +295,7 @@ export default Vue.extend({
 
 <style lang="scss" scoped>
 
-.video {
+.video-container {
   position: fixed;
   width: 100%;
   height: 100%;

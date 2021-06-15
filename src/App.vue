@@ -23,6 +23,8 @@
     <transition appear name="slow-fade">
       <LoaderApi v-if="isLoadingApi" />
     </transition>
+
+    <div v-html="getEmbed(analytics)" />
   </div>
 </template>
 
@@ -39,6 +41,11 @@ export interface VueInterface extends Vue {
 }
 
 @Component({
+  data() {
+    return {
+      analytics: '',
+    };
+  },
   components: {
     VideoComponent,
     HeaderComponent,
@@ -75,6 +82,14 @@ export interface VueInterface extends Vue {
           this.$store.dispatch('setTeachers', professores);
         });
     }
+
+    const url = `${this.$store.getters.getApiUrl}&mod=configuracoes`;
+
+    fetch(url)
+      .then((res) => res.json())
+      .then((res) => {
+        this.$data.analytics = res.result[0].configuracoes[0].codigo_analytics;
+      });
   },
   metaInfo: {
     meta: [
@@ -87,6 +102,13 @@ export interface VueInterface extends Vue {
         content: 'https://salagosto.com.br/img/imgShare.png',
       },
     ],
+  },
+  methods: {
+    getEmbed(code) {
+      const result = code.replaceAll(/''/g, '"').replaceAll('\\n', '');
+
+      return result;
+    },
   },
 })
 export default class App extends Vue {
@@ -139,6 +161,23 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #EEE;
+
+  .video {
+    width: 100%;
+    height: 110vh;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    z-index: 1;
+
+    iframe {
+      color: #b10309;
+
+      @media screen and (max-width: 880px) {
+        height: 90vh !important;
+      }
+    }
+  }
 
   .router-view {
     min-height: 50vh;

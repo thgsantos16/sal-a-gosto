@@ -71,7 +71,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(['getApiUrl', 'getUser']),
+    ...mapGetters(['getApiUrl', 'getUser', 'isLoggedIn']),
   },
   methods: {
     ...mapActions(['setSiteTitle', 'setUser', 'setChosenPlan']),
@@ -94,7 +94,9 @@ export default {
     },
     sendForm() {
       this.setChosenPlan(this.selectedPlan);
-      this.$router.push({ name: 'endereco' });
+
+      if (this.isLoggedIn) this.$router.push({ name: 'endereco' });
+      else this.$router.push({ name: 'register' });
     },
     sendCupomForm() {
       let url = `${this.getApiUrl}&meth=getCupom`;
@@ -103,7 +105,7 @@ export default {
       fetch(url)
         .then((res) => res.json())
         .then((res) => {
-          console.log(res);
+          this.plans = res.result[0].loja_cupons;
         });
     },
   },

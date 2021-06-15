@@ -6,7 +6,7 @@
           <a target="_blank"
              v-for="link in links"
              :key="link.id"
-             :href="link.permalink"
+             :href="link.url"
              :class="link.referencia"></a>
 
           <div class="mdeias-text">

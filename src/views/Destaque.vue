@@ -11,7 +11,6 @@
         <div class="ops-title">
            <span>Oops.</span>
            Parece que não há nada por aqui.
-           Estamos direcionando você de volta para a lista de aulas...
         </div>
       </div>
     </div>

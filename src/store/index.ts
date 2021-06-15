@@ -5,6 +5,7 @@ Vue.use(Vuex);
 
 // Mutations
 const SET_USER = 'SET_USER';
+const SET_MUTED = 'SET_MUTED';
 const SET_REDIRECT = 'SET_REDIRECT';
 const SET_TEACHERS = 'SET_TEACHERS';
 const SET_SITE_TITLE = 'SET_SITE_TITLE';
@@ -40,6 +41,7 @@ export default new Vuex.Store({
     loadingApi: false,
     teachers: [],
     playing: false,
+    muted: false,
   },
   getters: {
     isLoggedIn: (state) => !!state.user,
@@ -55,6 +57,7 @@ export default new Vuex.Store({
     getTeachers: (state) => state.teachers,
     isLoadingApi: (state) => state.loadingApi,
     isPlaying: (state) => state.playing,
+    isMuted: (state) => state.muted,
   },
   mutations: {
     SET_SITE_TITLE: (state, title) => {
@@ -89,6 +92,9 @@ export default new Vuex.Store({
     },
     SET_LOADING_API: (state, loading) => {
       state.loadingApi = loading;
+    },
+    SET_MUTED: (state, muted) => {
+      state.muted = muted;
     },
   },
   actions: {
@@ -130,6 +136,9 @@ export default new Vuex.Store({
     },
     setVideoState: ({ commit }, video) => {
       commit(SET_VIDEO_STATE, video);
+    },
+    setMuted: ({ commit }, muted) => {
+      commit(SET_MUTED, muted);
     },
   },
   modules: {

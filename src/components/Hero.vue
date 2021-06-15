@@ -1,13 +1,24 @@
 <template>
-  <div class="hero">
+  <div class="hero" ref="hero">
     <transition appear name="fade">
-      <div class="video"
-           v-if="data.video"
-           ref="herovideo"
-           v-html="getEmbed(data.video)"></div>
-      <div class="image"
-           v-else-if="data.image"
-           v-lazy:background-image="data.image"></div>
+      <div v-if="data.video">
+        <div class="video"
+            v-if="!isMobile"
+            ref="herovideo"
+            v-html="getEmbed(data.video)"></div>
+        <div class="video"
+            v-else
+            ref="herovideo"
+            v-html="getEmbedMobile(data.videoMobile)"></div>
+      </div>
+      <div v-else>
+        <div class="image"
+            v-if="data.image && !isMobile"
+            v-lazy:background-image="data.image"></div>
+        <div class="image mobile"
+            v-else-if="data.imageMobile && isMobile"
+            v-lazy:background-image="data.image"></div>
+      </div>
     </transition>
     <div class="overlay" @click="playPause">
       <transition appear name="fade">
@@ -20,6 +31,17 @@
           </div>
         </div>
       </transition>
+      <div v-if="data.video" class="mute">
+        <div @click.stop="muteVideo"
+             class="mute-inner"
+             v-if="!$store.getters.isMuted"
+             title="Desligar o som">
+          <b-icon-volume-up-fill />
+        </div>
+        <div @click.stop="unmuteVideo" class="mute-inner" v-else title="Ligar o som">
+          <b-icon-volume-mute-fill />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -31,23 +53,60 @@ import Vimeo from '@vimeo/player';
 interface HeroObject {
   title: string;
   image?: string;
+  imageMobile?: string;
+  video?: string;
+  videoMobile?: string;
   small?: string;
   width?: string;
   font?: string;
   summary: string;
   ready?: boolean;
+  isCarousel?: boolean;
   hasButton?: boolean;
   buttonText?: string;
   buttonUrl?: string;
 }
 
 @Component({
+  watch: {
+    muted: {
+      handler(val) {
+        const hv = this.$refs.herovideo as HTMLDivElement;
+        const video = hv.querySelector('iframe');
+
+        if (video) {
+          const player = new Vimeo(video);
+
+          if (val) player.setVolume(0);
+          else player.setVolume(1);
+        }
+      },
+      immediate: true,
+    },
+  },
+  computed: {
+    muted() {
+      return this.$store.getters.isMuted;
+    },
+    isMobile() {
+      const hero = this.$refs.hero as HTMLDivElement;
+      return document.body.clientWidth <= 800 || hero.offsetWidth <= 800;
+    },
+  },
   methods: {
+    muteVideo() {
+      this.$store.dispatch('setMuted', true);
+    },
+    unmuteVideo() {
+      this.$store.dispatch('setMuted', false);
+    },
     clean(val: string): string {
       if (!val) return '';
       return val.replaceAll('\\n', '');
     },
     getEmbed(video) {
+      if (!video) return '';
+
       const iframe = video.replace(/ width=''(.*?)''/, '')
         .replace(/ height=''(.*?)''/, '')
         .replace('><', ' style="width: 100%; height: calc(900vw / 16);"><')
@@ -57,7 +116,27 @@ interface HeroObject {
       element.innerHTML = iframe;
 
       const htmliframe = element.getElementsByTagName('iframe')[0];
-      htmliframe.src += '?autoplay=1';
+      if (!this.$store.getters.isShowingVideo) htmliframe.src += '?autoplay=1';
+      else htmliframe.src += '?muted=1';
+
+      this.$store.dispatch('setVideoState', true);
+
+      return htmliframe.outerHTML;
+    },
+    getEmbedMobile(video) {
+      if (!video) return '';
+
+      const iframe = video.replace(/ width=''(.*?)''/, '')
+        .replace(/ height=''(.*?)''/, '')
+        .replace('><', ' style="width: 100%; height: calc(1600vw / 9);"><')
+        .replaceAll(/''/g, '"');
+
+      const element = document.createElement('div');
+      element.innerHTML = iframe;
+
+      const htmliframe = element.getElementsByTagName('iframe')[0];
+      if (!this.$store.getters.isShowingVideo) htmliframe.src += '?autoplay=1';
+      else htmliframe.src += '?muted=1';
 
       this.$store.dispatch('setVideoState', true);
 
@@ -151,7 +230,11 @@ export default class Hero extends Vue {
       font-size: 5rem;
 
       @media screen and (max-width: 1024px) {
-        font-size: 3rem;
+        font-size: 2.8rem;
+      }
+
+      @media screen and (max-width: 720px) {
+        font-size: 2.5rem;
       }
     }
 
@@ -203,5 +286,17 @@ export default class Hero extends Vue {
       }
     }
   }
+}
+
+.mute-inner {
+    background: #00000077;
+    float: right;
+    padding: 7px 25px;
+    border-radius: 25px;
+    font-size: 24px;
+    cursor: pointer;
+    top: 70vh;
+    right: 25px;
+    position: absolute;
 }
 </style>

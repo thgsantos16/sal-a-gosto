@@ -29,7 +29,7 @@
       </form>
 
       <div class="buttons-extra">
-        <router-link :to="{ name: 'register' }" class="button btn-block">
+        <router-link :to="{ name: 'planos' }" class="button btn-block">
           Quero Assinar
         </router-link>
       </div>

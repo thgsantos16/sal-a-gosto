@@ -217,7 +217,7 @@ export default {
         .then((res) => {
           if (res.result[0].login && res.result[0].login.length > 0) {
             this.setUser(res.result[0].login[0]);
-            this.$router.push({ name: 'planos' });
+            this.$router.push({ name: 'endereco' });
           } else {
             this.$bvToast.toast(res.result[0].cadastro[0].erro, {
               title: 'Algo deu errado!',

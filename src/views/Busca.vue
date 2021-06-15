@@ -16,7 +16,9 @@
           </form>
         </div>
         <div class="col text-right pt-3">
-          <a href="#" :disabled="!clickAdvanced" @click.prevent="showAdvanced = !showAdvanced">
+          <a href="#"
+             :disabled="!clickAdvanced"
+             @click.prevent="showAdvanced = !showAdvanced; localText = ''">
             {{ showAdvanced ? '-' : '+' }} Busca Avançada
           </a>
         </div>
@@ -75,7 +77,7 @@
           <h4>Tempo de Preparo:</h4>
           <input v-model="selectedFilter.tempo.de" placeholder="De" class="advanced-input">
           <input v-model="selectedFilter.tempo.ate" placeholder="Até" class="advanced-input">
-          * Em Segundos
+          * Em Minutos
         </div>
         <div class="col-lg-auto col">
           <h4>Calorias:</h4>
@@ -158,6 +160,10 @@ export default {
         let idProfessor = '';
         let idReceita = '';
         let ingredientes = '';
+        let tempoDe = '';
+        let tempoAte = '';
+        let caloriasDe = '';
+        let caloriasAte = '';
 
         if (val.ingredientes) {
           val.ingredientes.forEach((ing) => {
@@ -180,6 +186,16 @@ export default {
           });
         }
 
+        if (val.tempo) {
+          if (val.tempo.de) tempoDe = val.tempo.de;
+          if (val.tempo.ate) tempoAte = val.tempo.ate;
+        }
+
+        if (val.calorias) {
+          if (val.calorias.de) caloriasDe = val.calorias.de;
+          if (val.calorias.ate) caloriasAte = val.calorias.ate;
+        }
+
         this.$router.push({
           name: 'busca',
           query: {
@@ -188,6 +204,14 @@ export default {
             id_professor: idProfessor,
             // eslint-disable-next-line @typescript-eslint/camelcase
             id_receita: idReceita,
+            // eslint-disable-next-line @typescript-eslint/camelcase
+            tempo_preparo_de: tempoDe,
+            // eslint-disable-next-line @typescript-eslint/camelcase
+            tempo_preparo_ate: tempoAte,
+            // eslint-disable-next-line @typescript-eslint/camelcase
+            calorias_de: caloriasDe,
+            // eslint-disable-next-line @typescript-eslint/camelcase
+            calorias_ate: caloriasAte,
             ingredientes,
           },
         });
@@ -263,6 +287,8 @@ export default {
   beforeMount() {
     this.setSiteTitle('Minha Lista | Sal a Gosto');
     this.localText = this.$route.query.search;
+
+    if (this.$route.params.advancedSearch === 'true') this.showAdvanced = true;
 
     let url = `${this.getApiUrl}&meth=getFiltros`;
     if (this.getUser) url += `&id_usuario=${this.getUser.login_token}`;

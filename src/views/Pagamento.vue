@@ -14,7 +14,7 @@
                       :key="cartao.id"
                       :value="cartao.id"
                       class="grey">
-                {{ cartao.nome }}
+                {{ cartao.titulo }}
               </option>
             </select>
           </div>
@@ -39,7 +39,7 @@
           </div>
 
           <div class="col-lg-6">
-            <the-mask mask="#### #### #### ####"
+            <the-mask mask="XXXX XXXX XXXX ####"
                       v-model="$v.numero.$model"
                       placeholder="Número do Cartão*"
                       :disabled="cartao !== '0'" />
@@ -69,7 +69,7 @@
           </div>
 
           <div class="col-lg-6">
-            <the-mask mask="###"
+            <the-mask mask="XXX"
                       v-model="$v.cvv.$model"
                       placeholder="CVV*"
                       :disabled="cartao !== '0'" />
@@ -101,6 +101,7 @@
 
 <script>
 
+import _ from 'lodash';
 import { mapActions, mapGetters } from 'vuex';
 import { required } from 'vuelidate/lib/validators';
 
@@ -125,6 +126,21 @@ export default {
   computed: {
     ...mapGetters(['getApiUrl', 'getUser', 'getChosenPlan', 'getAddressDetails', 'getChosenAddress']),
   },
+  watch: {
+    cartao(val) {
+      if (val !== 0) {
+        const card = _.find(this.cartoes, { id: val });
+        if (card) {
+          this.titulo = card.titulo;
+          this.nome = card.nome;
+          this.numero = card.numero.replace(' ', '');
+          this.mes = card.mes_validade;
+          this.ano = card.ano_validade;
+          this.cvv = 'XXX';
+        }
+      }
+    },
+  },
   methods: {
     ...mapActions(['setSiteTitle', 'setUser', 'setLoadingApi']),
     submitRegister() {
@@ -148,7 +164,7 @@ export default {
       url += `&pagamento_cidade=${this.getAddressDetails.cidade}`;
       url += `&pagamento_estado=${this.getAddressDetails.estado}`;
       url += `&pagamento_pais=${this.getAddressDetails.pais}`;
-      if (this.cartao !== '0') url += `id_cartao=${this.cartao}`;
+      if (this.cartao !== '0') url += `&id_cartao=${this.cartao}`;
       url += `&cartao_nome=${this.nome}`;
       url += `&cartao_numero=${this.numero}`;
       url += `&cartao_mes_validade=${this.mes}`;
@@ -167,7 +183,7 @@ export default {
       fetch(url)
         .then((res) => res.json())
         .then((res) => {
-          if (res.result[0].loja_pedidos.length > 0) {
+          if (!res.result[0].loja_pedidos[0].erro) {
             this.$bvToast.toast('Sua assinatura foi feita com sucesso!', {
               title: 'Assinatura realizada',
               variant: 'success',
@@ -179,7 +195,7 @@ export default {
             this.setUser(user);
             this.$router.push({ name: 'assinatura' });
           } else {
-            this.$bvToast.toast('Não conseguimos processar sua assinatura no momento.', {
+            this.$bvToast.toast(res.result[0].loja_pedidos[0].erro, {
               title: 'Algo deu errado',
               variant: 'danger',
               solid: true,
@@ -191,15 +207,14 @@ export default {
     },
   },
   beforeMount() {
-    this.setSiteTitle('Assinatura - Endereço | Sal a Gosto');
+    this.setSiteTitle('Assinatura - Pagamento | Sal a Gosto');
 
     const url = `${this.getApiUrl}&meth=getCartoes&id_usuario=${this.getUser.login_token}`;
 
     fetch(url)
       .then((res) => res.json())
       .then((res) => {
-        console.log('res');
-        console.log(res);
+        this.cartoes = res.result[0].loja_cartoes;
       });
   },
   validations: {
